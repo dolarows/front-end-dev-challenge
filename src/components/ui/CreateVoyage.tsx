@@ -20,13 +20,13 @@ export default function CreateVoyage() {
           await queryClient.invalidateQueries([
             "voyages",
           ] as InvalidateQueryFilters);
-          toast({ title: "Voyage deleted successfully", status: "success" });
+          toast({ description: "Voyage deleted successfully" });
         },
       });
 
       const handleCreateSuccess = () => {
         setOpen(false);
-        toast({ title: "Voyage created successfully", status: "success" });
+        toast({ description: "Voyage created successfully"});
       };
     
       const handleClose = () => {

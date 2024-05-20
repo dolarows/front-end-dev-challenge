@@ -21,6 +21,7 @@ import type { ReturnType } from "./api/voyage/getAll";
 import { Button } from "~/components/ui/button";
 import { TABLE_DATE_FORMAT } from "~/constants";
 import { Popover, PopoverTrigger, PopoverContent } from "~/components/ui/popover";
+import { useToast } from "~/components/ui/use-toast";
 
 export default function Home() {
   const { data: voyages } = useQuery<ReturnType>({
@@ -29,6 +30,7 @@ export default function Home() {
   });
 
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const mutation = useMutation({
     mutationFn: async (voyageId: string) => {
       const response = await fetch(`/api/voyage/delete?id=${voyageId}`, {
@@ -38,6 +40,11 @@ export default function Home() {
       if (!response.ok) {
         throw new Error("Failed to delete the voyage");
       }
+    },
+    onError: () => {
+      toast({
+        description: "Failed to delete the voyage"
+      });
     },
   });
 
