@@ -1,4 +1,10 @@
-import { InvalidateQueryFilters, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import {
+  InvalidateQueryFilters,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { format } from "date-fns";
 import Head from "next/head";
 import Layout from "~/components/layout";
@@ -14,15 +20,13 @@ import { fetchData } from "~/utils";
 import type { ReturnType } from "./api/voyage/getAll";
 import { Button } from "~/components/ui/button";
 import { TABLE_DATE_FORMAT } from "~/constants";
+import { Popover, PopoverTrigger, PopoverContent } from "~/components/ui/popover";
 
 export default function Home() {
   const { data: voyages } = useQuery<ReturnType>({
     queryKey: ["voyages"],
-
-    queryFn: () =>
-      fetchData("voyage/getAll")
+    queryFn: () => fetchData("voyage/getAll", { include: ["unitTypes"] }),
   });
-
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
@@ -35,11 +39,7 @@ export default function Home() {
         throw new Error("Failed to delete the voyage");
       }
     },
-   	onSuccess: async () => {
-        await queryClient.invalidateQueries(["voyages"] as InvalidateQueryFilters);
-      },
-    }
-  );
+  });
 
   const handleDelete = (voyageId: string) => {
     mutation.mutate(voyageId);
@@ -48,7 +48,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Voyages | DFDS</title>
+        <title>Voyages | DFDS</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
@@ -60,7 +60,8 @@ export default function Home() {
               <TableHead>Port of loading</TableHead>
               <TableHead>Port of discharge</TableHead>
               <TableHead>Vessel</TableHead>
-              <TableHead>&nbsp;</TableHead>
+              <TableHead>Unit Types</TableHead>
+              <TableHead> </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -69,7 +70,7 @@ export default function Home() {
                 <TableCell>
                   {format(
                     new Date(voyage.scheduledDeparture),
-                    TABLE_DATE_FORMAT
+                    TABLE_DATE_FORMAT,
                   )}
                 </TableCell>
                 <TableCell>
@@ -78,6 +79,23 @@ export default function Home() {
                 <TableCell>{voyage.portOfLoading}</TableCell>
                 <TableCell>{voyage.portOfDischarge}</TableCell>
                 <TableCell>{voyage.vessel.name}</TableCell>
+                <TableCell>
+                  <Popover>
+                    <PopoverTrigger>
+                      <Button variant="outline">{voyage.unitTypes.length}</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <ul>
+                        {voyage.unitTypes.map((unitType) => (
+                          <li key={unitType.id}>
+                            <p>Name: {unitType.name}</p>
+                            <p>Default Length: {unitType.defaultLength}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
                 <TableCell>
                   <Button
                     onClick={() => handleDelete(voyage.id)}

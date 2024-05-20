@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import CreateVoyage from "./ui/CreateVoyage";
 
 type Props = {
   children: ReactNode;
@@ -14,6 +15,7 @@ export default function Layout({ children }: Props) {
           <Image src="/logo.svg" alt="DFDS logo" width={56} height={18} />
         </div>
       </nav>
+      <CreateVoyage />
       <main className="mx-auto flex w-full max-w-screen-xl items-center justify-center px-2">
         <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
